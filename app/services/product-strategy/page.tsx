@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 
 const features = [
@@ -86,7 +85,6 @@ export default function ProductStrategyPage() {
   return (
     <>
       <main className="min-h-screen">
-        <Navigation />
         {/* Hero Section */}
         <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-gray-50">
           <div className="container-custom">
