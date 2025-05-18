@@ -66,7 +66,7 @@ export default function CaseStudiesPage() {
       {/* Hero Section */}
       <section className="pt-32 pb-16 md:pt-40 md:pb-24 bg-gray-50">
         <div className="container-custom max-w-3xl">
-          <h1 className="heading-1 text-gray-900 mb-6">Case Studies Demo</h1>
+          <h1 className="heading-1 text-gray-900 mb-6">Case Studies (Demo)</h1>
           <p className="text-xl text-gray-600 mb-8">
             Real-world examples of AI product management and strategy success. See how we've helped companies across industries achieve their goals through effective product management and strategic planning.
           </p>
