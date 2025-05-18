@@ -11,7 +11,6 @@ const navigation = [
   { name: 'About', href: '/about' },
   { name: 'Blog', href: '/blog' },
   { name: 'Contact', href: '/contact' },
-  { name: 'Tools', href: '/tools' },
 ]
 
 export default function Navigation() {
