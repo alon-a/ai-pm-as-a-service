@@ -1,26 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-
-const ADMIN_PATH = path.join(process.cwd(), 'data', 'admin.json');
-
-function readAdmin() {
-  if (!fs.existsSync(ADMIN_PATH)) return { password: 'changeme' };
-  return JSON.parse(fs.readFileSync(ADMIN_PATH, 'utf-8'));
-}
-
-function writeAdmin(data: any) {
-  fs.writeFileSync(ADMIN_PATH, JSON.stringify(data, null, 2));
-}
+import { getAdminByEmail, updateAdminPassword } from '../../../models/Admin';
+import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
-  const { password } = await req.json();
-  const admin = readAdmin();
-  return NextResponse.json({ success: password === admin.password });
+  const { email, password } = await req.json();
+  const admin = await getAdminByEmail(email);
+  if (!admin) {
+    return NextResponse.json({ success: false, error: 'Admin not found' }, { status: 401 });
+  }
+  const valid = await bcrypt.compare(password, admin.passwordHash);
+  return NextResponse.json({ success: valid });
 }
 
 export async function PUT(req: NextRequest) {
-  const { password } = await req.json();
-  writeAdmin({ password });
+  const { email, password } = await req.json();
+  await updateAdminPassword(email, password);
   return NextResponse.json({ success: true });
 } 
