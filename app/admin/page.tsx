@@ -47,7 +47,8 @@ function BlogAdmin({ adminEmail, onLogout }: { adminEmail: string; onLogout: () 
   const [message, setMessage] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const addFileInputRef = useRef<HTMLInputElement>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch('/api/blog').then(r => r.json()).then(setPosts);
@@ -95,32 +96,59 @@ function BlogAdmin({ adminEmail, onLogout }: { adminEmail: string; onLogout: () 
     setShowPreview(false);
   }
 
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleAddImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       alert('Please select an image file');
       return;
     }
-
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       alert('Image size must be less than 5MB');
       return;
     }
-
     setUploading(true);
     const formData = new FormData();
     formData.append('image', file);
-
     try {
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
+      if (response.ok) {
+        const data = await response.json();
+        setForm(f => ({ ...f, image: data.url }));
+        setMessage('Image uploaded successfully!');
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  }
 
+  async function handleEditImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size must be less than 5MB');
+      return;
+    }
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('image', file);
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
       if (response.ok) {
         const data = await response.json();
         setForm(f => ({ ...f, image: data.url }));
@@ -245,17 +273,17 @@ function BlogAdmin({ adminEmail, onLogout }: { adminEmail: string; onLogout: () 
                   <button
                     type="button"
                     className="btn-secondary"
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => addFileInputRef.current?.click()}
                     disabled={uploading}
                   >
                     {uploading ? 'Uploading...' : 'Upload'}
                   </button>
                 </div>
                 <input
-                  ref={fileInputRef}
+                  ref={addFileInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={handleImageUpload}
+                  onChange={handleAddImageUpload}
                   className="hidden"
                 />
                 {form.image && (
@@ -399,7 +427,7 @@ function BlogAdmin({ adminEmail, onLogout }: { adminEmail: string; onLogout: () 
                           <button
                             type="button"
                             className="btn-secondary"
-                            onClick={() => fileInputRef.current?.click()}
+                            onClick={() => editFileInputRef.current?.click()}
                             disabled={uploading}
                           >
                             {uploading ? 'Uploading...' : 'Upload'}
