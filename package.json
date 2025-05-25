@@ -2,16 +2,26 @@
   "name": "ai-pm-consultant",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "migrate": "node scripts/migrate-to-mongodb.js",
+    "migrate-blog": "node scripts/migrate-blog-to-mongodb.cjs",
+    "add-post": "node scripts/add-blog-post.cjs",
+    "test-db": "node scripts/test-connection.js"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.1",
+    "@types/marked": "^5.0.2",
     "autoprefixer": "^10.4.17",
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^16.5.0",
     "framer-motion": "^11.0.3",
+    "marked": "^15.0.12",
+    "mongodb": "^6.3.0",
     "next": "^14.2.28",
     "nodemailer": "^7.0.0",
     "postcss": "^8.4.35",
