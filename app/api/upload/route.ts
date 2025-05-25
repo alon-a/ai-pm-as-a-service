@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
+import clientPromise from '../../../lib/mongodb.js';
+import { GridFSBucket } from 'mongodb';
+import streamifier from 'streamifier';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,30 +25,28 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'public', 'uploads');
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true });
-    }
+    const client = await clientPromise;
+    const db = client.db('ai_pm_consultant');
+    const bucket = new GridFSBucket(db, { bucketName: 'images' });
 
-    // Generate unique filename
-    const timestamp = Date.now();
-    const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-    const filename = `${timestamp}_${originalName}`;
-    const filepath = join(uploadsDir, filename);
+    // Create a readable stream from the buffer
+    const uploadStream = bucket.openUploadStream(file.name, {
+      contentType: file.type,
+    });
+    streamifier.createReadStream(buffer).pipe(uploadStream);
 
-    // Write file
-    await writeFile(filepath, buffer);
-
-    // Return the public URL
-    const url = `/uploads/${filename}`;
-    
-    return NextResponse.json({ 
-      success: true, 
-      url,
-      filename 
+    // Wait for upload to finish
+    await new Promise((resolve, reject) => {
+      uploadStream.on('finish', resolve);
+      uploadStream.on('error', reject);
     });
 
+    // Return the file ID for retrieval
+    return NextResponse.json({
+      success: true,
+      imageId: uploadStream.id.toString(),
+      url: `/api/image/${uploadStream.id.toString()}`
+    });
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
