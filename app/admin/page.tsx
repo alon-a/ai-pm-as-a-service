@@ -433,6 +433,13 @@ function BlogAdmin({ adminEmail, onLogout }: { adminEmail: string; onLogout: () 
                             {uploading ? 'Uploading...' : 'Upload'}
                           </button>
                         </div>
+                        <input
+                          ref={editFileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleEditImageUpload}
+                          className="hidden"
+                        />
                         {form.image && (
                           <div className="mt-2">
                             <img src={form.image} alt="Preview" className="max-h-32 rounded border" />
